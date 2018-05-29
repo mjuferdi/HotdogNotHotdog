@@ -31,11 +31,46 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
+        // TODO: 4. Change UIImage as CIImage
         if let userpickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             imageView.image = userpickedImage
+            
+            guard let ciImage = CIImage(image: userpickedImage) else {fatalError("Could not convert UIImage into CIImage")}
+            
+            detect(image: ciImage)
         }
         
         imagePicker.dismiss(animated: true, completion: nil)
+        
+    }
+    
+    // TODO: 5. Use CoreML to recognize image, is it a hotdog?
+    func detect(image: CIImage) {
+        guard let model = try? VNCoreMLModel(for: Inceptionv3().model) else {fatalError("Loading CoreML Model failed.")}
+        
+        let request = VNCoreMLRequest(model: model) { (request, error) in
+            guard let results = request.results as? [VNClassificationObservation] else {fatalError("Model failed to process image")}
+            
+            if let firstResult = results.first {
+                if firstResult.identifier.contains("hotdog") {
+                    self.navigationItem.title = "Hot dog"
+                    self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.green]
+                    
+                } else {
+                    self.navigationItem.title = "Not Hotd og"
+                    self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.red]
+
+                }
+            }
+        }
+        
+        let handler = VNImageRequestHandler(ciImage: image)
+        
+        do {
+            try handler.perform([request])
+        } catch {
+            print(error)
+        }
         
     }
     
