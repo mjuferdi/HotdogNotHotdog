@@ -9,6 +9,7 @@
 import UIKit
 import CoreML
 import Vision
+import SVProgressHUD
 
 // TODO: 1. Delegate the controller
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -53,11 +54,15 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             
             if let firstResult = results.first {
                 if firstResult.identifier.contains("hotdog") {
+                    SVProgressHUD.showSuccess(withStatus: "This is a hot dog")
+                    SVProgressHUD.setDefaultMaskType(SVProgressHUDMaskType.black)
                     self.navigationItem.title = "Hot dog"
                     self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.green]
                     
                 } else {
-                    self.navigationItem.title = "Not Hotd og"
+                    SVProgressHUD.showError(withStatus: "This is not a hot dog")
+                    SVProgressHUD.setDefaultMaskType(SVProgressHUDMaskType.black)
+                    self.navigationItem.title = "Not Hot dog"
                     self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.red]
 
                 }
